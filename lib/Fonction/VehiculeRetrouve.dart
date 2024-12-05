@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:autoguard_flutter/Constant.dart';
+import 'package:autoguard_flutter/Fonction/DemandeRdvPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:autoguard_flutter/Constant.dart';
 
 class VehiculeRetrouve extends StatefulWidget {
   @override
@@ -23,6 +21,7 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
   final marqueController = TextEditingController();
   final modeleController = TextEditingController();
   final dateHeureController = TextEditingController();
+  final quartierController = TextEditingController();
 
   LatLng _selectedPosition = LatLng(6.125552372407288, 1.2103758524443544);
 
@@ -70,66 +69,32 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
     return true;
   }
 
-  Future<void> _submitRetrouve() async {
+  Future<void> _saveDataAndProceed() async {
     if (!_validateFields()) {
       return;
     }
-    setState(() {
-      isLoading = true;
-    });
 
-    final prefs = await SharedPreferences.getInstance();
-    final authToken = prefs.getString('authToken');
-    final utilisateurId = prefs.getInt('userId');
-
-    if (utilisateurId == null) {
-      _showErrorDialog("Utilisateur non identifié. Veuillez vous reconnecter.");
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-
+    // Sauvegarde temporaire des données du véhicule retrouvé
     final retrouveData = {
-      'utilisateurId': utilisateurId,
       'nomRetrouveur': nomRetrouveurController.text,
       'prenomRetrouveur': prenomRetrouveurController.text,
       'numPlaque': numPlaqueController.text,
       'lieuLong': lieuLongController.text,
       'lieuLat': lieuLatController.text,
+      'quartier': quartierController.text,
       'marque': marqueController.text,
       'modele': modeleController.text,
       'dateHeure': dateHeureController.text,
     };
 
-    const String _baseUrl = '$url/api/vehiculeRetrouve';
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('retrouveData', jsonEncode(retrouveData));
 
-    try {
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(retrouveData),
-      );
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Enregistrement du véhicule retrouvé réussi!'),
-          backgroundColor: Colors.green,
-        ));
-        Navigator.pop(context);
-      } else {
-        _showErrorDialog(
-            "Erreur lors de l'envoi des données. Veuillez réessayer.");
-      }
-    } catch (e) {
-      _showErrorDialog("Une erreur est survenue: ${e.toString()}");
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+    // Redirection vers la page de demande de rendez-vous
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DemandeRdvPage()),
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -160,30 +125,6 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
         border: OutlineInputBorder(
           borderSide: BorderSide.none,
           borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateTimeField(
-      String hintText, TextEditingController controller) {
-    return GestureDetector(
-      onTap: () async {
-        await _selectDate(context);
-        await _selectTime(context);
-      },
-      child: AbsorbPointer(
-        child: TextFormField(
-          controller: controller,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Color(0xFFE7EDEB),
-            hintText: hintText,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
         ),
       ),
     );
@@ -222,6 +163,30 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeField(
+      String hintText, TextEditingController controller) {
+    return GestureDetector(
+      onTap: () async {
+        await _selectDate(context);
+        await _selectTime(context);
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Color(0xFFE7EDEB),
+            hintText: hintText,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -312,6 +277,8 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
                         SizedBox(height: 20.0),
                         _buildTextField("Numéro Plaque", numPlaqueController),
                         SizedBox(height: 20.0),
+                        _buildTextField("Quartier", quartierController),
+                        SizedBox(height: 20.0),
                         _buildMapSelector(),
                         SizedBox(height: 20.0),
                         _buildTextField("Marque", marqueController),
@@ -327,7 +294,7 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue.shade600,
                             ),
-                            onPressed: isLoading ? null : _submitRetrouve,
+                            onPressed: isLoading ? null : _saveDataAndProceed,
                             child: Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 18.0),
@@ -337,7 +304,7 @@ class _VehiculeRetrouveState extends State<VehiculeRetrouve> {
                                           Colors.white),
                                     )
                                   : Text(
-                                      "Enregistrer",
+                                      "Continuer",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18.0,

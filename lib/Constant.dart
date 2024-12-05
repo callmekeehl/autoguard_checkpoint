@@ -1,2 +1,2 @@
 const String url =
-    'https://0d5f-2c0f-f0f8-825-5b00-21e1-586e-fc49-f1cd.ngrok-free.app/';
+    'https://f435-2c0f-f0f8-655-be00-f5ed-9193-5605-53de.ngrok-free.app/';

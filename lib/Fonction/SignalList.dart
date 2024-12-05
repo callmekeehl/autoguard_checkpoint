@@ -12,8 +12,11 @@ class SignalList extends StatefulWidget {
 
 class _SignalListState extends State<SignalList> {
   List<dynamic> declarations = [];
+  List<dynamic> filteredDeclarations = []; // Liste filtrée
   bool isLoading = true;
   String errorMessage = '';
+  TextEditingController searchController =
+      TextEditingController(); // Contrôleur de recherche
 
   @override
   void initState() {
@@ -36,7 +39,7 @@ class _SignalListState extends State<SignalList> {
 
     try {
       final response = await http.get(
-        Uri.parse('$url/api/declarations/utilisateur/$userId'),
+        Uri.parse('$url/api/declarations'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -46,6 +49,8 @@ class _SignalListState extends State<SignalList> {
       if (response.statusCode == 200) {
         setState(() {
           declarations = json.decode(response.body);
+          filteredDeclarations =
+              declarations; // Initialiser avec toutes les déclarations
           isLoading = false;
         });
       } else {
@@ -60,6 +65,58 @@ class _SignalListState extends State<SignalList> {
         isLoading = false;
       });
     }
+  }
+
+  void _filterDeclarations(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredDeclarations =
+            declarations; // Réinitialiser si le champ est vide
+      } else {
+        filteredDeclarations = declarations.where((declaration) {
+          final marque = declaration['marque']?.toLowerCase() ?? '';
+          final modele = declaration['modele']?.toLowerCase() ?? '';
+          final queryLower = query.toLowerCase();
+          return marque.contains(queryLower) || modele.contains(queryLower);
+        }).toList();
+      }
+    });
+  }
+
+  void _showDeclarationDetails(
+      BuildContext context, Map<String, dynamic> declaration) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Détails de la Déclaration"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    "Propriétaire : ${declaration['prenomProprio']} ${declaration['nomProprio']}"),
+                Text("Téléphone : ${declaration['telephoneProprio']}"),
+                Text("Marque : ${declaration['marque']}"),
+                Text("Modèle : ${declaration['modele']}"),
+                Text("Numéro de Châssis : ${declaration['numChassis']}"),
+                Text("Numéro de Plaque : ${declaration['numPlaque']}"),
+                Text("Lieu (Longitude) : ${declaration['lieuLong']}"),
+                Text("Lieu (Latitude) : ${declaration['lieuLat']}"),
+                Text("Date et Heure : ${declaration['dateHeure']}"),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Fermer"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -78,25 +135,47 @@ class _SignalListState extends State<SignalList> {
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : errorMessage.isNotEmpty
-              ? Center(child: Text(errorMessage))
-              : ListView.builder(
-                  itemCount: declarations.length,
-                  itemBuilder: (context, index) {
-                    final declaration = declarations[index];
-                    return ListTile(
-                      title: Text(
-                        '${declaration['marque']} ${declaration['modele']}',
+          : Column(
+              children: [
+                // Barre de recherche
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Rechercher une déclaration',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      subtitle: Text(
-                          'Déclaré le: ${declaration['dateHeure']}\nPropriétaire: ${declaration['prenomProprio']} ${declaration['nomProprio']}'),
-                      trailing: Icon(Icons.chevron_right),
-                      onTap: () {
-                        // Ajoutez une action pour afficher les détails de la déclaration
-                      },
-                    );
-                  },
+                    ),
+                    onChanged:
+                        _filterDeclarations, // Appeler la fonction de filtrage
+                  ),
                 ),
+                Expanded(
+                  child: errorMessage.isNotEmpty
+                      ? Center(child: Text(errorMessage))
+                      : ListView.builder(
+                          itemCount: filteredDeclarations.length,
+                          itemBuilder: (context, index) {
+                            final declaration = filteredDeclarations[index];
+                            return ListTile(
+                              title: Text(
+                                '${declaration['marque']} ${declaration['modele']}',
+                              ),
+                              subtitle: Text(
+                                  'Déclaré le: ${declaration['dateHeure']}\nPropriétaire: ${declaration['prenomProprio']} ${declaration['nomProprio']}'),
+                              trailing: Icon(Icons.chevron_right),
+                              onTap: () {
+                                _showDeclarationDetails(context, declaration);
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
     );
   }
 }

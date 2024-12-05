@@ -1,12 +1,13 @@
 import 'package:autoguard_flutter/Fonction/PoliceCalendar.dart';
 import 'package:autoguard_flutter/Fonction/Signal.dart';
+import 'package:autoguard_flutter/Fonction/SignalList.dart';
+import 'package:autoguard_flutter/Fonction/VehiculeRetrouve.dart';
 import 'package:autoguard_flutter/Fonction/Verification.dart';
 import 'package:autoguard_flutter/Police/ListeRdv.dart';
 import 'package:autoguard_flutter/Police/PoliceInfo.dart';
 import 'package:autoguard_flutter/Utilisateur/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:autoguard_flutter/Police/SignalListPolice.dart';
 
 class HomePolice extends StatefulWidget {
   @override
@@ -48,7 +49,7 @@ class _HomePoliceState extends State<HomePolice> {
   void _navigateToSignalList() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ListDeclarationPolice()),
+      MaterialPageRoute(builder: (context) => SignalList()),
     );
   }
 
@@ -63,6 +64,13 @@ class _HomePoliceState extends State<HomePolice> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CalendarPage()),
+    );
+  }
+
+  void _navigateToVehiculeRetrouve() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => VehiculeRetrouve()),
     );
   }
 
@@ -226,6 +234,50 @@ class _HomePoliceState extends State<HomePolice> {
                                           ),
                                           Text(
                                             "Vous pouvez consulter ici \n la liste des demandes de rdv \npar les utilisateurs",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            GestureDetector(
+                              onTap: () => _navigateToVehiculeRetrouve(),
+                              child: Card(
+                                margin: EdgeInsets.fromLTRB(0, 0, 6, 0),
+                                color: Colors.blue.shade200,
+                                elevation: 14,
+                                child: Container(
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        "./assets/images/loupe.png",
+                                        height: 60,
+                                      ),
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Déclarer un \nvéhicule retrouvé",
+                                            style: TextStyle(
+                                                fontFamily: 'bungee',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18),
+                                          ),
+                                          Text(
+                                            "Vous pouvez déclarer ici un \nengin retrouvé",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14),

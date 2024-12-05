@@ -240,6 +240,10 @@ class _SignalState extends State<Signal> {
               lieuLatController.text = latlng.latitude.toString();
               lieuLongController.text = latlng.longitude.toString();
             });
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                  'Position sélectionnée : ${latlng.latitude}, ${latlng.longitude}'),
+            ));
           },
         ),
         children: [
