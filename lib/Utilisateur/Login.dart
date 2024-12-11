@@ -9,6 +9,7 @@ import '../Constant.dart';
 import 'package:autoguard_flutter/Admin/HomeAdmin.dart';
 import 'package:autoguard_flutter/Police/HomePolice.dart';
 import 'package:autoguard_flutter/Garage/HomeGarage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -42,6 +43,20 @@ class _LoginState extends State<Login> {
     const String _baseUrl = '$url/api/login';
 
     try {
+      // Récupération du token FCM
+      final FirebaseMessaging messaging = FirebaseMessaging.instance;
+      final String? fcmToken = await messaging.getToken();
+
+      if (fcmToken == null) {
+        _showErrorDialog("Impossible de récupérer le token FCM.");
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      print("Token FCM : $fcmToken"); // Debug : Afficher le token FCM
+
       // Envoi de la requête HTTP POST pour l'authentification
       final response = await http.post(
         Uri.parse(_baseUrl),

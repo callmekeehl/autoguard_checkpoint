@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "419779331224",
+    "project_id": "autoguardflutter",
+    "storage_bucket": "autoguardflutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419779331224:android:504cca73703a07c60dbced",
+        "android_client_info": {
+          "package_name": "com.example.autoguard_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIk8hjkpjTVzBNrPOgWe-4C2n-cdJiFvk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

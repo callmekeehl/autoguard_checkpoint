@@ -5,6 +5,7 @@ import 'package:autoguard_flutter/Fonction/VehiculeRetrouve.dart';
 import 'package:autoguard_flutter/Fonction/Verification.dart';
 import 'package:autoguard_flutter/Police/ListeRdv.dart';
 import 'package:autoguard_flutter/Police/PoliceInfo.dart';
+import 'package:autoguard_flutter/Police/SendNotification.dart';
 import 'package:autoguard_flutter/Utilisateur/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,6 +72,13 @@ class _HomePoliceState extends State<HomePolice> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => VehiculeRetrouve()),
+    );
+  }
+
+  void _navigateToSendNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SendNotificationPage()),
     );
   }
 
@@ -360,6 +368,47 @@ class _HomePoliceState extends State<HomePolice> {
                                           ),
                                           Text(
                                             "Vous pouvez faire ici \nles vérifications des \nvéhicules suspects",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            GestureDetector(
+                              onTap: () => _navigateToSendNotification(),
+                              child: Card(
+                                margin: EdgeInsets.fromLTRB(0, 0, 6, 0),
+                                color: Colors.blue.shade200,
+                                elevation: 14,
+                                child: Container(
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        "./assets/images/notification.png",
+                                        height: 80,
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Envoi de \nnotification",
+                                            style: TextStyle(
+                                                fontFamily: 'bungee',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20),
+                                          ),
+                                          Text(
+                                            "Vous pouvez envoyer ici \ndes notifications aux \nutilisateurs",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14),
