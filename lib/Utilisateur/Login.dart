@@ -23,6 +23,32 @@ class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+// Fonction pour enregistrer le fcmToken
+  Future<void> _enregistrerFcmToken(
+      String utilisateurId, String fcmToken) async {
+    const String _baseUrl = '$url/api/enregistrerToken'; // Endpoint du backend
+
+    try {
+      final response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'utilisateurId': utilisateurId,
+          'fcmToken': fcmToken,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print("FCM Token enregistré avec succès.");
+      } else {
+        print(
+            "Erreur lors de l'enregistrement du FCM Token : ${response.body}");
+      }
+    } catch (e) {
+      print("Exception lors de l'enregistrement du FCM Token : $e");
+    }
+  }
+
   // Fonction pour gérer la connexion
   Future<void> _login() async {
     setState(() {
